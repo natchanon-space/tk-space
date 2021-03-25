@@ -95,9 +95,7 @@ class SpaceGame(GameApp):
     def init_game(self):
         self.ship = Ship(self, CANVAS_WIDTH // 2, CANVAS_HEIGHT // 2)
 
-        self.level = 1
-        self.level_text = Text(self, '', 100, 580)
-        self.update_level_text()
+        self.level = StatusWithText(self, 100, 580, 'Level: %d', 1)
 
         # StatusWithText encap
         self.score = StatusWithText(self, 100, 20, 'Score: %d', 0)
@@ -122,8 +120,8 @@ class SpaceGame(GameApp):
 
         # canvas configure
         self.canvas.configure(bg="darkgray")
-        for item in [self.level_text.canvas_object_id, self.score.label_text.canvas_object_id, self.bomb_power.label_text.canvas_object_id]:
-            self.canvas.itemconfigure(item, fill="white")
+        for item in [self.level, self.score, self.bomb_power]:
+            self.canvas.itemconfigure(item.label_text.canvas_object_id, fill="white")
 
     def add_enemy(self, enemy):
         self.enemies.append(enemy)
@@ -151,9 +149,6 @@ class SpaceGame(GameApp):
                 if self.ship.distance_to(e) <= BOMB_RADIUS:
                     e.to_be_deleted = True
 
-    def update_level_text(self):
-        self.level_text.set_text('Level: %d' % self.level)
-
     def update_score(self):
         self.score_wait += 1
         if self.score_wait >= SCORE_WAIT:
@@ -165,6 +160,9 @@ class SpaceGame(GameApp):
         if (self.bomb_wait >= BOMB_WAIT) and (self.bomb_power.value != BOMB_FULL_POWER):
             self.bomb_power.value += 1
             self.bomb_wait = 0
+
+    def update_level(self):
+        pass
         
     def create_enemies(self):
         p = random()
