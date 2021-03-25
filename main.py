@@ -102,11 +102,9 @@ class SpaceGame(GameApp):
         # StatusWithText encap
         self.score = StatusWithText(self, 100, 20, 'Score: %d', 0)
         self.score_wait = 0
-
-        self.bomb_power = BOMB_FULL_POWER
+        
+        self.bomb_power = StatusWithText(self, 700, 20, 'Power: %d%%', BOMB_FULL_POWER)
         self.bomb_wait = 0
-        self.bomb_power_text = Text(self, '', 700, 20)
-        self.update_bomb_power_text()
 
         self.elements.append(self.ship)
 
@@ -124,7 +122,7 @@ class SpaceGame(GameApp):
 
         # canvas configure
         self.canvas.configure(bg="darkgray")
-        for item in [self.level_text.canvas_object_id, self.score.label_text.canvas_object_id, self.bomb_power_text.canvas_object_id]:
+        for item in [self.level_text.canvas_object_id, self.score.label_text.canvas_object_id, self.bomb_power.label_text.canvas_object_id]:
             self.canvas.itemconfigure(item, fill="white")
 
     def add_enemy(self, enemy):
@@ -137,8 +135,8 @@ class SpaceGame(GameApp):
         return len(self.bullets)
 
     def bomb(self):
-        if self.bomb_power == BOMB_FULL_POWER:
-            self.bomb_power = 0
+        if self.bomb_power.value == BOMB_FULL_POWER:
+            self.bomb_power.value = 0
 
             self.bomb_canvas_id = self.canvas.create_oval(
                 self.ship.x - BOMB_RADIUS, 
@@ -153,11 +151,6 @@ class SpaceGame(GameApp):
                 if self.ship.distance_to(e) <= BOMB_RADIUS:
                     e.to_be_deleted = True
 
-            self.update_bomb_power_text()
-
-    def update_bomb_power_text(self):
-        self.bomb_power_text.set_text('Power: %d%%' % self.bomb_power)
-
     def update_level_text(self):
         self.level_text.set_text('Level: %d' % self.level)
 
@@ -169,10 +162,9 @@ class SpaceGame(GameApp):
 
     def update_bomb_power(self):
         self.bomb_wait += 1
-        if (self.bomb_wait >= BOMB_WAIT) and (self.bomb_power != BOMB_FULL_POWER):
-            self.bomb_power += 1
+        if (self.bomb_wait >= BOMB_WAIT) and (self.bomb_power.value != BOMB_FULL_POWER):
+            self.bomb_power.value += 1
             self.bomb_wait = 0
-            self.update_bomb_power_text()
         
     def create_enemies(self):
         p = random()
