@@ -3,7 +3,7 @@ from random import randint, random
 
 import tkinter as tk
 
-from gamelib import Sprite, GameApp, Text
+from gamelib import Sprite, GameApp, Text, KeyboardHandler
 
 from consts import *
 from elements import Ship, Bullet, Enemy
@@ -51,6 +51,45 @@ class EdgeEnemyGenerationStrategy(EnemyGenerationStrategy):
         return [enemy]
 ### end strategy pattern ###
 
+### START: CoR pattern ###
+class GameKeyboardHandler(KeyboardHandler):
+    def __init__(self, game_app, ship, successor=None):
+        super().__init__(successor)
+        self.game_app = game_app
+        self.ship = ship
+
+class BombKeyPressedHandler(GameKeyboardHandler):
+    def handle(self, event):
+        if event.char.upper() == 'Z':
+            self.game_app.bomb()
+        else:                                     #
+            super().handle(event)
+
+class ShipMovementKeyPressedHandler(GameKeyboardHandler):
+    def handle(self, event):
+        # TODO:
+        #   - extract the code from on_key_pressed
+        if event.keysym == 'Left':
+            self.ship.start_turn('LEFT')
+        elif event.keysym == 'Right':
+            self.ship.start_turn('RIGHT')
+        elif event.char == ' ':
+            self.ship.fire()
+        else:
+            super().handle(event)
+
+class ShipMovementKeyReleasedHandler(GameKeyboardHandler):
+    def handle(self, event):
+        # TODO:
+        #   - extract the code from on_key_released
+        if event.keysym == 'Left':
+            self.ship.stop_turn('LEFT')
+        elif event.keysym == 'Right':
+            self.ship.stop_turn('RIGHT')
+        else:
+            super().handle(event)
+### END: CoR pattern ###
+
 
 class SpaceGame(GameApp):
     def init_game(self):
@@ -80,6 +119,9 @@ class SpaceGame(GameApp):
             (0.2, StarEnemyGenerationStrategy()),
             (1.0, EdgeEnemyGenerationStrategy())
         ]
+
+        # CoR pattern
+        self.init_key_handlers()
 
         # canvas configure
         self.canvas.configure(bg="darkgray")
@@ -187,22 +229,15 @@ class SpaceGame(GameApp):
 
         self.update_score()
         self.update_bomb_power()
+    
+    # CoR pattern
+    def init_key_handlers(self):
+        key_pressed_handler = ShipMovementKeyPressedHandler(self, self.ship)
+        key_pressed_handler = BombKeyPressedHandler(self, self.ship, key_pressed_handler)
+        self.key_pressed_handler = key_pressed_handler
 
-    def on_key_pressed(self, event):
-        if event.keysym == 'Left':
-            self.ship.start_turn('LEFT')
-        elif event.keysym == 'Right':
-            self.ship.start_turn('RIGHT')
-        elif event.char == ' ':
-            self.ship.fire()
-        elif event.char.upper() == 'Z':
-            self.bomb()
-
-    def on_key_released(self, event):
-        if event.keysym == 'Left':
-            self.ship.stop_turn('LEFT')
-        elif event.keysym == 'Right':
-            self.ship.stop_turn('RIGHT')
+        key_released_handler = ShipMovementKeyReleasedHandler(self, self.ship)
+        self.key_released_handler = key_released_handler
 
 
 if __name__ == "__main__":
