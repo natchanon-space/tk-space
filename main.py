@@ -3,7 +3,7 @@ from random import randint, random
 
 import tkinter as tk
 
-from gamelib import Sprite, GameApp, Text, KeyboardHandler
+from gamelib import Sprite, GameApp, Text, KeyboardHandler, StatusWithText
 
 from consts import *
 from elements import Ship, Bullet, Enemy
@@ -99,10 +99,9 @@ class SpaceGame(GameApp):
         self.level_text = Text(self, '', 100, 580)
         self.update_level_text()
 
-        self.score = 0
+        # StatusWithText encap
+        self.score = StatusWithText(self, 100, 20, 'Score: %d', 0)
         self.score_wait = 0
-        self.score_text = Text(self, '', 100, 20)
-        self.update_score_text()
 
         self.bomb_power = BOMB_FULL_POWER
         self.bomb_wait = 0
@@ -125,7 +124,7 @@ class SpaceGame(GameApp):
 
         # canvas configure
         self.canvas.configure(bg="darkgray")
-        for item in [self.level_text.canvas_object_id, self.score_text.canvas_object_id, self.bomb_power_text.canvas_object_id]:
+        for item in [self.level_text.canvas_object_id, self.score.label_text.canvas_object_id, self.bomb_power_text.canvas_object_id]:
             self.canvas.itemconfigure(item, fill="white")
 
     def add_enemy(self, enemy):
@@ -156,9 +155,6 @@ class SpaceGame(GameApp):
 
             self.update_bomb_power_text()
 
-    def update_score_text(self):
-        self.score_text.set_text('Score: %d' % self.score)
-
     def update_bomb_power_text(self):
         self.bomb_power_text.set_text('Power: %d%%' % self.bomb_power)
 
@@ -168,9 +164,8 @@ class SpaceGame(GameApp):
     def update_score(self):
         self.score_wait += 1
         if self.score_wait >= SCORE_WAIT:
-            self.score += 1
+            self.score.value += 1
             self.score_wait = 0
-            self.update_score_text()
 
     def update_bomb_power(self):
         self.bomb_wait += 1
