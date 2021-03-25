@@ -81,6 +81,11 @@ class SpaceGame(GameApp):
             (1.0, EdgeEnemyGenerationStrategy())
         ]
 
+        # canvas configure
+        self.canvas.configure(bg="darkgray")
+        for item in [self.level_text.canvas_object_id, self.score_text.canvas_object_id, self.bomb_power_text.canvas_object_id]:
+            self.canvas.itemconfigure(item, fill="white")
+
     def add_enemy(self, enemy):
         self.enemies.append(enemy)
 
