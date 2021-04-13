@@ -207,9 +207,17 @@ class SpaceGame(GameApp):
             if self.ship.is_colliding_with_enemy(e):
                 self.stop_animation()
 
+    # ship edge collision
+    def process_ship_edge_collision(self):
+        w, h = CANVAS_WIDTH, CANVAS_HEIGHT
+        x, y = self.ship.x, self.ship.y
+        if not (0 <= x <= w and 0 <= y <= h):
+            self.stop_animation()
+
     def process_collisions(self):
         self.process_bullet_enemy_collisions()
         self.process_ship_enemy_collision()
+        self.process_ship_edge_collision()
 
     def update_and_filter_deleted(self, elements):
         new_list = []
